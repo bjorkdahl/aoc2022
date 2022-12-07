@@ -76,27 +76,29 @@
           "RGZTZFWLB",
           "JGSCTZRRL"
         ],
-        "time": 3.253375
+        "time": 1.831375
       },
       "part2": {
         "solved": true,
         "result": "PRTTGRFPB",
         "attempts": [],
-        "time": 1.115791
+        "time": 0.645042
       }
     },
     {
       "part1": {
-        "solved": false,
-        "result": null,
-        "attempts": [],
-        "time": null
+        "solved": true,
+        "result": "1802",
+        "attempts": [
+          "1801"
+        ],
+        "time": 0.730833
       },
       "part2": {
-        "solved": false,
-        "result": null,
+        "solved": true,
+        "result": "3551",
         "attempts": [],
-        "time": null
+        "time": 2.235917
       }
     },
     {
