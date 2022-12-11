@@ -71,7 +71,6 @@ const part2 = (rawInput: string) => {
 
   for (const [direction, length] of instructions) {
     const moves = getMoves(direction, length)
-
     for (const move of moves) {
       const previousHead = headPosition
       headPosition = move(headPosition.x, headPosition.y)
@@ -79,39 +78,18 @@ const part2 = (rawInput: string) => {
       let previousKnotPositionBeforeMove = previousHead
 
       for (let i = 0; i < tailPositions.length; i++) {
+        const previousKnotPositionAfterMove =
+          i === 0 ? headPosition : tailPositions[i - 1]
         const tailPosition = tailPositions[i]
-
-        if (i === 0) {
-          if (
-            Math.abs(previousHead.x - tailPosition.x) <= 1 &&
-            Math.abs(previousHead.y - tailPosition.y) <= 1
-          ) {
-            tailPositions[i] = {
-              x:
-                tailPosition.x +
-                previousHead.x -
-                previousKnotPositionBeforeMove.x,
-              y:
-                tailPosition.y +
-                previousHead.y -
-                previousKnotPositionBeforeMove.y,
-            }
-          } else {
-            tailPositions[i] = previousKnotPositionBeforeMove
-          }
-        } else {
-          const previousKnotPositionAfterMove = tailPositions[i - 1]
-
-          if (
-            isNotAdjacent(
-              previousKnotPositionAfterMove.x,
-              previousKnotPositionAfterMove.y,
-              tailPosition.x,
-              tailPosition.y,
-            )
-          ) {
-            tailPositions[i] = previousKnotPositionBeforeMove
-          }
+        if (
+          isNotAdjacent(
+            previousKnotPositionAfterMove.x,
+            previousKnotPositionAfterMove.y,
+            tailPosition.x,
+            tailPosition.y,
+          )
+        ) {
+          tailPositions[i] = previousKnotPositionBeforeMove
         }
 
         if (i === tailPositions.length - 1) {
