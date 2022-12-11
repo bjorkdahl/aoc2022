@@ -7,7 +7,7 @@ type Instruction = [Direction, number]
 
 const parseInput = (rawInput: string): Instruction[] =>
   rawInput.split("\n").map((a) => {
-    const [direction, length] = a.split("")
+    const [direction, length] = a.split(" ")
     return [direction as Direction, Number(length)]
   })
 
@@ -22,40 +22,124 @@ const getMoves = (
     L: (x, y) => ({ x: x - 1, y }),
   }
 
-  return new Array({ length }).map(() => movesByDirection[direction])
+  return new Array(length).fill(0).map(() => movesByDirection[direction])
 }
 
 const initMatrix = (width: number, height: number): boolean[][] =>
   new Array(height).fill(false).map(() => new Array(width).fill(false))
 
+const isNotAdjacent = (x1: number, y1: number, x2: number, y2: number) =>
+  Math.abs(x1 - x2) > 1 || Math.abs(y1 - y2) > 1
+
 const part1 = (rawInput: string) => {
   const instructions = parseInput(rawInput)
-  const matrix: boolean[][] = initMatrix(1000, 1000)
-  let currentPosition: Position = { x: 500, y: 500 }
+  const matrix: boolean[][] = initMatrix(400, 400)
+  let headPosition: Position = { x: 200, y: 200 }
+  let tailPosition: Position = { x: 200, y: 200 }
 
   for (const [direction, length] of instructions) {
     const moves = getMoves(direction, length)
     for (const move of moves) {
-      const { x, y } = move(currentPosition.x, currentPosition.y)
-      matrix[y][x] = true
+      const newHeadPosition = move(headPosition.x, headPosition.y)
+      if (
+        isNotAdjacent(
+          newHeadPosition.x,
+          newHeadPosition.y,
+          tailPosition.x,
+          tailPosition.y,
+        )
+      ) {
+        tailPosition = headPosition
+      }
+
+      headPosition = newHeadPosition
+
+      matrix[tailPosition.y][tailPosition.x] = true
     }
   }
-  return
+
+  return matrix.flat().filter(Boolean).length
 }
 
 const part2 = (rawInput: string) => {
-  const input = parseInput(rawInput)
+  const instructions = parseInput(rawInput)
+  const matrix: boolean[][] = initMatrix(400, 400)
+  let headPosition: Position = { x: 200, y: 200 }
+  let tailPositions: Position[] = new Array(9)
+    .fill({})
+    .map(() => ({ x: 200, y: 200 }))
 
-  return
+  for (const [direction, length] of instructions) {
+    const moves = getMoves(direction, length)
+
+    for (const move of moves) {
+      const previousHead = headPosition
+      headPosition = move(headPosition.x, headPosition.y)
+
+      let previousKnotPositionBeforeMove = previousHead
+
+      for (let i = 0; i < tailPositions.length; i++) {
+        const tailPosition = tailPositions[i]
+
+        if (i === 0) {
+          if (
+            Math.abs(previousHead.x - tailPosition.x) <= 1 &&
+            Math.abs(previousHead.y - tailPosition.y) <= 1
+          ) {
+            tailPositions[i] = {
+              x:
+                tailPosition.x +
+                previousHead.x -
+                previousKnotPositionBeforeMove.x,
+              y:
+                tailPosition.y +
+                previousHead.y -
+                previousKnotPositionBeforeMove.y,
+            }
+          } else {
+            tailPositions[i] = previousKnotPositionBeforeMove
+          }
+        } else {
+          const previousKnotPositionAfterMove = tailPositions[i - 1]
+
+          if (
+            isNotAdjacent(
+              previousKnotPositionAfterMove.x,
+              previousKnotPositionAfterMove.y,
+              tailPosition.x,
+              tailPosition.y,
+            )
+          ) {
+            tailPositions[i] = previousKnotPositionBeforeMove
+          }
+        }
+
+        if (i === tailPositions.length - 1) {
+          matrix[tailPositions[i].y][tailPositions[i].x] = true
+        }
+
+        previousKnotPositionBeforeMove = tailPosition
+      }
+    }
+  }
+
+  return matrix.flat().filter(Boolean).length
 }
 
 run({
   part1: {
     tests: [
-      // {
-      //   input: ``,
-      //   expected: "",
-      // },
+      {
+        input: `R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20`,
+        expected: 36,
+      },
     ],
     solution: part1,
   },
